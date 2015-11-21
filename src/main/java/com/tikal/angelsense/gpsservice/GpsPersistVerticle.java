@@ -24,10 +24,11 @@ public class GpsPersistVerticle extends AbstractVerticle {
 	}
 
 	private void persistGps(final Message<JsonObject> m) {
-		logger.debug("Got GPS message {}",m.body());
+		final JsonObject gps = m.body();
+		logger.debug("Got GPS message {}",gps);
+		vertx.eventBus().publish("gps-feed", gps.toString());
 		if(redis==null)
 			redis = RedisClient.create(vertx, config);
-		final JsonObject gps = m.body();
 		redis.zadd("gps.angel."+gps.getInteger("angelId"), gps.getLong("readingTime").doubleValue(), gps.toString(), ar->handleAddGps(gps,ar));
 	}
 
