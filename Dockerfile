@@ -1,14 +1,14 @@
 ###
 # vert.x docker device-manager using a Java verticle packaged as a fatjar
 # To build:
-#  docker build -t angelsense/gps-service .
+#  docker build -t angelsense/as-gps-service .
 # To run:
-#   docker run -t -i -p 8080:8080 angelsense/gps-service
+#   docker run -t -i -p 8080:8080 angelsense/as-gps-service
 ###
 
 FROM java:8
 
-ENV VERTICLE_FILE gps-service-3.1.0-fat.jar
+ENV VERTICLE_FILE as-gps-service-3.1.0-fat.jar
 
 # Set the location of the verticles
 ENV VERTICLE_HOME /usr/verticles
