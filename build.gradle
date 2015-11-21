@@ -48,6 +48,13 @@ shadowJar {
     }
 }
 
+task zipAll(type: Zip) {
+    from '.'
+	baseName = 'as-gps-service'
+    include 'conf/**'
+    include '*.sh'
+    include 'build/libs/*.jar'
+}
 
 
 

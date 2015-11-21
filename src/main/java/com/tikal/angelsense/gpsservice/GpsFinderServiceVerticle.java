@@ -26,11 +26,11 @@ public class GpsFinderServiceVerticle extends AbstractVerticle {
 		redis = RedisClient.create(vertx, new RedisOptions().setHost(config().getString("redis-host")));
 
 		final Router router = Router.router(vertx);
+		router.route(HttpMethod.GET, "/gps/angel/:angelId").handler(this::handleQuery);
 		// Allow outbound traffic to the gps-feed address
 		final BridgeOptions options = new BridgeOptions().addOutboundPermitted(new PermittedOptions().setAddress("gps-feed"));
 		router.route("/eventbus/*").handler(SockJSHandler.create(vertx).bridge(options, this::handleBridgeEvent));
 		router.route().handler(StaticHandler.create());
-		router.route(HttpMethod.GET, "/gps/angel/:angelId").handler(this::handleQuery);
 		vertx.createHttpServer().requestHandler(router::accept).listen(config().getInteger("http-port"));
 
 		logger.info("Started the HTTP server...");
