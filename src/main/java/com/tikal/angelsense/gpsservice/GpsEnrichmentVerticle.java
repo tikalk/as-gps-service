@@ -7,7 +7,11 @@ import java.util.Map;
 import java.util.TimeZone;
 import java.util.UUID;
 
+import com.cyngn.kafka.MessageConsumer;
+
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 
@@ -24,7 +28,8 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-		vertx.eventBus().consumer("gps.all", this::enrichGps);
+//		vertx.eventBus().consumer("gps.all", this::enrichGps);
+		vertx.deployVerticle(MessageConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
 		logger.info("Deployed GpsEnrichmentVerticle successfully");
 	}
 
@@ -35,7 +40,6 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		final Integer angelId = getAngelId(gps.getString("emei"));
 		gps.put("angelId", angelId);
 		logger.debug("Reply with the following enrichment gps: {}", gps);
-		vertx.eventBus().publish("gps-feed", gps.toString());
 		vertx.eventBus().send("enriched.gps",gps);
 	}
 
@@ -59,5 +63,14 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		imeiToAngelCache.put(imei, 2);
 		return 2;
 		
+	}
+	
+	private void handleKafkaDeploy(final AsyncResult<String> ar) {
+		if (ar.succeeded()){
+			logger.info("Connected to succfully to Kafka");
+			vertx.eventBus().consumer(MessageConsumer.EVENTBUS_DEFAULT_ADDRESS, this::enrichGps);
+		}
+		else
+			logger.error("Problem connect to Kafka: ",ar.cause());
 	}
 }

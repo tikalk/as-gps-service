@@ -1,4 +1,17 @@
 {
 	"http-port" : 8080,
-	"redis-host" : "localhost" 
+	"redis-host" : "localhost", 
+	
+	"consumer" : {
+	    "zookeeper.host" : "localhost",
+	    "group.id" : "gpsServiceGroup",
+	    "topics" : ["as-raw-gps"]
+	 },
+	 
+	 "producer":{
+		"topic":"as-gps",
+		"metadata.broker.list":"localhost:9092",
+		"serializer.class":"kafka.serializer.StringEncoder",
+		"producer.type" : "sync"
+	}
 }
