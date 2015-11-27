@@ -45,12 +45,12 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 
 	public JsonObject toJson(final String gpsPayload) {
 		final JsonObject gps = new JsonObject();
-		gps.put("id", UUID.randomUUID().toString());
 		final String[] csvValues = gpsPayload.split(",");
+		gps.put("id", csvValues[csvValues.length-1]);
+		gps.put("receptionTime", csvValues[csvValues.length-2]);
 		gps.put("imei", csvValues[1]);
 		gps.put("lat", Double.valueOf(csvValues[4]));
 		gps.put("lon", Double.valueOf(csvValues[5]));
-		gps.put("receptionTime", Long.valueOf(df.format(new Date())));
 		gps.put("readingTime", Long.valueOf(csvValues[6]));
 		return gps;
 	}
