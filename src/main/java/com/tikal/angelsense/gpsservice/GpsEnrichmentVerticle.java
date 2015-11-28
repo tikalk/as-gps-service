@@ -1,11 +1,7 @@
 package com.tikal.angelsense.gpsservice;
 
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.TimeZone;
-import java.util.UUID;
 
 import com.cyngn.kafka.MessageConsumer;
 
@@ -13,23 +9,27 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.eventbus.Message;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientOptions;
+import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.JsonObject;
 
 public class GpsEnrichmentVerticle extends AbstractVerticle {
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GpsEnrichmentVerticle.class);
+	
 
 	private final SimpleDateFormat df = new SimpleDateFormat("yyMMddHHmmss");
+	
+	private GpsPersistor gpsPersistor;
 
-	{
-		df.setTimeZone(TimeZone.getTimeZone("UTC"));
-	}
-
-	private final Map<String, Integer> imeiToAngelCache = new HashMap<>();
+	
 
 	@Override
 	public void start() {
-//		vertx.eventBus().consumer("gps.all", this::enrichGps);
+//		extractAngelIdAndSave("013949008057328",null);
+		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		vertx.deployVerticle(MessageConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
+		gpsPersistor = new GpsPersistor(vertx,config());
 		logger.info("Deployed GpsEnrichmentVerticle successfully");
 	}
 
@@ -37,17 +37,15 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		final String gpsPayload = message.body();
 		logger.debug("I have received a message: {}", gpsPayload);
 		final JsonObject gps = toJson(gpsPayload);
-		final Integer angelId = getAngelId(gps.getString("emei"));
-		gps.put("angelId", angelId);
-		logger.debug("Reply with the following enrichment gps: {}", gps);
-		vertx.eventBus().send("enriched.gps",gps);
+		extractAngelIdAndSave(gps.getString("imei"),gps);
+		
 	}
 
 	public JsonObject toJson(final String gpsPayload) {
 		final JsonObject gps = new JsonObject();
 		final String[] csvValues = gpsPayload.split(",");
 		gps.put("id", csvValues[csvValues.length-1]);
-		gps.put("receptionTime", csvValues[csvValues.length-2]);
+		gps.put("receptionTime", Long.valueOf(csvValues[csvValues.length-2]));
 		gps.put("imei", csvValues[1]);
 		gps.put("lat", Double.valueOf(csvValues[4]));
 		gps.put("lon", Double.valueOf(csvValues[5]));
@@ -55,16 +53,28 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		return gps;
 	}
 
-	private Integer getAngelId(final String imei) {
-		final Integer angelId = imeiToAngelCache.get(imei);
-		if(angelId != null)
-			return angelId;
-		
-		imeiToAngelCache.put(imei, 2);
-		return 2;
-		
+	private void extractAngelIdAndSave(final String imei, final JsonObject gps) {
+		final HttpClient managementHttpClient = vertx.createHttpClient(
+				new HttpClientOptions().setDefaultHost(config().getString("management.http.server.address"))
+						.setDefaultPort(config().getInteger("management.http.server.port")));
+		managementHttpClient.get(
+				"/api/v1/angels/devices?imei="+imei, 
+				response->handleResponse(response,gps)).putHeader("content-type", "text/json").end();		
 	}
 	
+	
+	
+	private void handleResponse(final HttpClientResponse response, final JsonObject gps) {
+		response.bodyHandler(body -> {			
+			if(body==null || body.toString().isEmpty())
+				logger.trace("Could not find angel for gps: {}",gps);
+			else{
+				gps.put("angelId", Integer.valueOf(body.toString()));
+				gpsPersistor.persistGps(gps);
+			}
+		});
+	}
+
 	private void handleKafkaDeploy(final AsyncResult<String> ar) {
 		if (ar.succeeded()){
 			logger.info("Connected to succfully to Kafka");

@@ -11,7 +11,6 @@ public class GpsServiceVerticle extends AbstractVerticle {
 	public void start() {
 		vertx.deployVerticle(new GpsEnrichmentVerticle(),new DeploymentOptions().setConfig(config()));
 		vertx.deployVerticle(new GpsFinderServiceVerticle(),new DeploymentOptions().setConfig(config()));
-		vertx.deployVerticle(new GpsPersistVerticle(),new DeploymentOptions().setConfig(config()));
 		
 		
 		logger.info("Started listening to EventBus for GPS");

@@ -2,34 +2,31 @@ package com.tikal.angelsense.gpsservice;
 
 import com.cyngn.kafka.MessageProducer;
 
-import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
+import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.Message;
 import io.vertx.core.json.JsonObject;
 import io.vertx.redis.RedisClient;
 import io.vertx.redis.RedisOptions;
 
-public class GpsPersistVerticle extends AbstractVerticle {
+public class GpsPersistor  {
 
-	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GpsPersistVerticle.class);
+	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(GpsPersistor.class);
 	private RedisClient redis;
-	private RedisOptions config;
+	private final RedisOptions config;
+	private final Vertx vertx;
 
-	@Override
-	public void start() {
-//		vertx.deployVerticle(new GpsEnrichmentVerticle());
-//		vertx.deployVerticle(new GpsFinderServiceVerticle(),new DeploymentOptions().setConfig(config()));
-		vertx.deployVerticle(MessageProducer.class.getName(),new DeploymentOptions().setConfig(config()));
-		config = new RedisOptions().setHost(config().getString("redis-host"));
-		vertx.eventBus().consumer("enriched.gps", this::persistGps);
+	public GpsPersistor(final Vertx vertx,final JsonObject appConfig) {
+		this.vertx=vertx;
+		vertx.deployVerticle(MessageProducer.class.getName(),new DeploymentOptions().setConfig(appConfig));
+		config = new RedisOptions().setHost(appConfig.getString("redis-host"));
 		logger.info("Started listening to EventBus for GPS");
 	}
 	
 	
 	
-	private void persistGps(final Message<JsonObject> m) {
-		final JsonObject gps = m.body();
+	public void persistGps(final JsonObject gps) {
 		logger.debug("Got GPS message {}",gps);
 		if(redis==null)
 			redis = RedisClient.create(vertx, config);
