@@ -58,13 +58,18 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 				new HttpClientOptions().setDefaultHost(config().getString("management.http.server.address"))
 						.setDefaultPort(config().getInteger("management.http.server.port")));
 		managementHttpClient.get(
-				"/api/v1/angels/devices?imei="+imei, 
+				"/api/v1/devices/"+imei+"/angels", 
 				response->handleResponse(response,gps)).putHeader("content-type", "text/json").end();		
 	}
 	
 	
 	
 	private void handleResponse(final HttpClientResponse response, final JsonObject gps) {
+		if(response.statusCode() != 200){
+			logger.error("Could not find angel: {}"+response.statusMessage());
+			return;
+		}
+			
 		response.bodyHandler(body -> {			
 			if(body==null || body.toString().isEmpty())
 				logger.trace("Could not find angel for gps: {}",gps);
