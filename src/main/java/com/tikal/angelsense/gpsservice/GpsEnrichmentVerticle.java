@@ -50,6 +50,9 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		gps.put("lat", Double.valueOf(csvValues[4]));
 		gps.put("lon", Double.valueOf(csvValues[5]));
 		gps.put("readingTime", Long.valueOf(csvValues[6]));
+		gps.put("speed", Integer.valueOf(csvValues[10]));
+		gps.put("heading", Integer.valueOf(csvValues[11]));
+		gps.put("distance", Long.valueOf(csvValues[14]));
 		return gps;
 	}
 
