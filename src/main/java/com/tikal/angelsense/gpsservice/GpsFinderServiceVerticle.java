@@ -50,7 +50,7 @@ public class GpsFinderServiceVerticle extends AbstractVerticle {
 		else {
 			final String start = routingContext.request().params().get("start");
 			final String stop = routingContext.request().params().get("stop");
-			redis.zrange("gps.angel." + angelId, Long.valueOf(start), Long.valueOf(stop),ar -> handleRedisQuery(ar, routingContext));
+			redis.zrevrangebyscore("gps.angel." + angelId, stop, start,null,ar -> handleRedisQuery(ar, routingContext));
 		}
 	}
 
