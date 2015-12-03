@@ -42,7 +42,7 @@ shadowJar {
     classifier = 'fat'
     manifest {
         attributes 'Main-Class': 'io.vertx.core.Launcher'
-        attributes 'Main-Verticle': 'com.tikal.angelsense.gpsservice.GpsPersistor'
+        attributes 'Main-Verticle': 'com.tikal.angelsense.gpsservice.GpsServiceVerticle'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
