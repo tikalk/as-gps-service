@@ -2,24 +2,35 @@ buildscript {
     repositories { jcenter() }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
-        classpath 'se.transmode.gradle:gradle-docker:1.2'
+        //dockerJava 'com.github.docker-java:docker-java:2.1.1'
+        classpath 'com.bmuschko:gradle-docker-plugin:2.5'
+
     }
 }
+
 
 apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'com.github.johnrengelman.shadow'
+apply plugin: 'com.bmuschko.docker-remote-api'
+
+
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 
 version = '3.1.0'
-
+def dockerOutput = new File(buildDir,'docker')
 if (!JavaVersion.current().java8Compatible) {
     throw new IllegalStateException('''A Haiku:
                                       |  This needs Java 8,
                                       |  You are using something else,
                                       |  Refresh. Try again.'''.stripMargin())
 }
+docker{
+    url = 'https://192.168.99.101:2376'
+    certPath = new File(System.properties['user.home'], '.docker/machine/machines/gradleBuild')
 
+}
 repositories {
     mavenCentral()
     maven {
@@ -57,8 +68,13 @@ task zipAll(type: Zip) {
     include 'build/libs/*.jar'
 }
 
-
-
+task buildImage(type: DockerBuildImage) {
+    dependsOn zipAll
+    quiet = false
+    inputDir = projectDir
+    tag = "$registerProdBaseName/$dockerBranch/$project.name:$dockerTag"
+}
+build.dependsOn buildImage
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
