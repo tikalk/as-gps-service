@@ -30,14 +30,16 @@ public class GpsPersistor  {
 		logger.debug("Got GPS message {}",gps);
 		if(redis==null)
 			redis = RedisClient.create(vertx, config);
-		redis.zadd("gps.angel."+gps.getInteger("angelId"), gps.getLong("readingTime").doubleValue(), gps.toString(), ar->handleAddGps(gps.toString(),ar));
+		final Integer angelId = gps.getInteger("angelId");
+		redis.zadd("gps.angel."+angelId, gps.getLong("readingTime").doubleValue(), gps.toString(), ar->handleAddGps(gps.toString(),angelId,ar));
 	}
 
-	private void handleAddGps(final String gps, final AsyncResult<Long> ar) {
+	private void handleAddGps(final String gps, final Integer angelId, final AsyncResult<Long> ar) {
 		if (ar.succeeded()){
 			logger.debug("Added GPS to Redis. GPS is {}",gps);
 			vertx.eventBus().send(MessageProducer.EVENTBUS_DEFAULT_ADDRESS, gps);
-			vertx.eventBus().publish("gps-feed", gps);
+			vertx.eventBus().publish("gps-feed-all", gps);
+			vertx.eventBus().publish("gps-feed-"+angelId, gps);
 		}
 		else
 			logger.error("Problem on adding GPS {}: ",gps,ar.cause());

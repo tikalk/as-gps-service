@@ -22,8 +22,15 @@
 <script>
   var eb = new EventBus("http://localhost:8080/eventbus");
 
+  //eb.onopen = function () {
+  //  eb.registerHandler("gps-feed-1", function (err, msg) {
+  //    var str = "<code>" + msg.body + "</code><br>";
+  //    $('#status').prepend(str);
+  //  })
+  //}
+  
   eb.onopen = function () {
-    eb.registerHandler("gps-feed", function (err, msg) {
+    eb.registerHandler("gps-feed-all", function (err, msg) {
       var str = "<code>" + msg.body + "</code><br>";
       $('#status').prepend(str);
     })
