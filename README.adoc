@@ -17,7 +17,7 @@ as-gps-service/build/distributions/as-gps-service-3.1.0.zip
 -----------
 You must run ZooKeeper and Kafka, before you run this service.
 You also need to have the as-management service running
-You also need to have a Redis DB running for this service
+You also need to have a MongoDB running for this service
 
 
 Unzip the file as-gps-service/build/distributions/as-gps-service-3.1.0.zip

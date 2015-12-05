@@ -20,7 +20,8 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 
 	private final SimpleDateFormat df = new SimpleDateFormat("yyMMddHHmmss");
 	
-	private GpsPersistor gpsPersistor;
+//	private GpsPersistor gpsPersistor;
+	private GpsMongoPersistor gpsPersistor;
 
 	
 
@@ -29,7 +30,7 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 //		extractAngelIdAndSave("013949008057328",null);
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		vertx.deployVerticle(MessageConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
-		gpsPersistor = new GpsPersistor(vertx,config());
+		gpsPersistor = new GpsMongoPersistor(vertx,config());
 		logger.info("Deployed GpsEnrichmentVerticle successfully");
 	}
 
@@ -44,7 +45,7 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 	public JsonObject toJson(final String gpsPayload) {
 		final JsonObject gps = new JsonObject();
 		final String[] csvValues = gpsPayload.split(",");
-		gps.put("id", csvValues[csvValues.length-1]);
+		gps.put("_id", csvValues[csvValues.length-1]);
 		gps.put("receptionTime", Long.valueOf(csvValues[csvValues.length-2]));
 		gps.put("imei", csvValues[1]);
 		gps.put("lat", Double.valueOf(csvValues[4]));

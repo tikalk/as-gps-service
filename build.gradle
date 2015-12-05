@@ -32,7 +32,7 @@ dependencies {
     compile "io.vertx:vertx-web:$version"
     compile "io.vertx:vertx-hazelcast:$version"
     compile 'com.cyngn.vertx:vertx-kafka:0.3.0'
-    compile "io.vertx:vertx-redis-client:$version"
+    compile "io.vertx:vertx-mongo-client:$version"
     compile "org.slf4j:slf4j-log4j12:1.7.12"
 	compile "org.slf4j:slf4j-api:1.7.12"
 	compile "log4j:log4j:1.2.17"

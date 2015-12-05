@@ -1,6 +1,11 @@
 {
 	"http-port" : 8080,
-	"redis-host" : "localhost", 
+	"mongoConfig" : {
+		"recreate" : true,
+		"gps_col_name" : "gpsreadings",
+		"connection_string" : "mongodb://localhost:27017",
+		"db_name" : "gps_db"
+	}, 
 	
 	"management.http.server.port" : 3080,
 	"management.http.server.address" : "localhost",
