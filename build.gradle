@@ -15,6 +15,7 @@ apply plugin: 'com.bmuschko.docker-remote-api'
 
 
 import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
 version = '3.1.0'
 def dockerSrc = new File(projectDir,'src/main/docker')
@@ -71,9 +72,13 @@ task buildImage(type: DockerBuildImage) {
     quiet = false
     inputDir = projectDir
 
-    tag = "$registerProdBaseName/$dockerBranch/$project.name:$dockerTag"
+    tag = "$registerBaseName/$dockerBranch/$project.name:$dockerTag"
 }
-//build.dependsOn buildImage
+task pushImage(type: DockerPushImage) {
+    dependsOn addTagWithDevPrefix
+    imageName = "$registerBaseName/$dockerBranch/$project.name"
+    tag="$dockerTag"
+}
 task wrapper(type: Wrapper) {
     gradleVersion = '2.0'
 }
