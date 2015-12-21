@@ -18,16 +18,18 @@ import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
 import com.bmuschko.gradle.docker.tasks.image.DockerPushImage
 
 version = '3.1.0'
-def dockerSrc = new File(projectDir,'src/main/docker')
+//def dockerSrc = new File(projectDir,'src/main/docker')
 if (!JavaVersion.current().java8Compatible) {
     throw new IllegalStateException('''A Haiku:
                                       |  This needs Java 8,
                                       |  You are using something else,
                                       |  Refresh. Try again.'''.stripMargin())
 }
+
 docker{
     url = "https://$dockerHost:2376"
-    certPath = new File(certUrl)
+    if (certUrl != "")
+        certPath = new File(certUrl)
 
 }
 repositories {
@@ -59,7 +61,8 @@ shadowJar {
     }
 }
 
-task zipAll(type: Zip) {
+task zipAll(type: Tar) {
+    extension = 'tar.gz'
     from '.'
 	baseName = 'as-gps-service'
     include 'conf/**'
