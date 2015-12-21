@@ -8,17 +8,12 @@
 
 FROM java:8
 
-ENV VERTICLE_FILE as-gps-service-3.1.0-fat.jar
-
-# Set the location of the verticles
-ENV VERTICLE_HOME /usr/verticles
-
 EXPOSE 8080
 
 # Copy your fat jar to the container
-COPY build/libs/$VERTICLE_FILE $VERTICLE_HOME/
+ADD build/distributions/as-gps-service-3.1.0.tar.gz /as-gps-service
 
 # Launch the verticle
-WORKDIR $VERTICLE_HOME
+ENV WORKDIR /as-gps-service
 ENTRYPOINT ["sh", "-c"]
-CMD ["java -jar $VERTICLE_FILE"]
+CMD ["cd $WORKDIR ; ./gps-service.sh"]
