@@ -27,8 +27,9 @@ if (!JavaVersion.current().java8Compatible) {
 }
 docker{
     url = "$dockerHost"
-    //if (certUrl != "")
-    certPath = new File('/Users/itai/.docker/machine/machines/gradleBuild')
+    if ($certUrl != "")
+        certPath = new File(certUrl)
+        //certPath = new File('/Users/itai/.docker/machine/machines/gradleBuild')
    // certPath = new File(certUrl)
 
 }
