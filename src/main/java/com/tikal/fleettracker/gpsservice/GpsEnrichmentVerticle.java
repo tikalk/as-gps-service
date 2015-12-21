@@ -1,4 +1,4 @@
-package com.tikal.angelsense.gpsservice;
+package com.tikal.fleettracker.gpsservice;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -27,7 +27,7 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 
 	@Override
 	public void start() {
-//		extractAngelIdAndSave("013949008057328",null);
+//		extractVehicleIdAndSave("013949008057328",null);
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
 		vertx.deployVerticle(MessageConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
 		gpsPersistor = new GpsMongoPersistor(vertx,config());
@@ -38,7 +38,7 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		final String gpsPayload = message.body();
 		logger.debug("I have received a message: {}", gpsPayload);
 		final JsonObject gps = toJson(gpsPayload);
-		extractAngelIdAndSave(gps.getString("imei"),gps);
+		extractVehicleIdAndSave(gps.getString("imei"),gps);
 		
 	}
 
@@ -57,12 +57,12 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 		return gps;
 	}
 
-	private void extractAngelIdAndSave(final String imei, final JsonObject gps) {
+	private void extractVehicleIdAndSave(final String imei, final JsonObject gps) {
 		final HttpClient managementHttpClient = vertx.createHttpClient(
 				new HttpClientOptions().setDefaultHost(config().getString("management.http.server.address"))
 						.setDefaultPort(config().getInteger("management.http.server.port")));
 		managementHttpClient.get(
-				"/api/v1/devices/"+imei+"/angels", 
+				"/api/v1/devices/"+imei+"/vehicles", 
 				response->handleResponse(response,gps)).putHeader("content-type", "text/json").end();		
 	}
 	
@@ -70,15 +70,15 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 	
 	private void handleResponse(final HttpClientResponse response, final JsonObject gps) {
 		if(response.statusCode() != 200){
-			logger.error("Could not find angel: {}"+response.statusMessage());
+			logger.error("Could not find vehicle: {}"+response.statusMessage());
 			return;
 		}
 			
 		response.bodyHandler(body -> {			
 			if(body==null || body.toString().isEmpty())
-				logger.trace("Could not find angel for gps: {}",gps);
+				logger.trace("Could not find vehicle for gps: {}",gps);
 			else{
-				gps.put("angelId", Integer.valueOf(body.toString()));
+				gps.put("vehicleId", Integer.valueOf(body.toString()));
 				gpsPersistor.persistGps(gps);
 			}
 		});

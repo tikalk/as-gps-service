@@ -1,4 +1,4 @@
-package com.tikal.angelsense.gpsservice;
+package com.tikal.fleettracker.gpsservice;
 
 import java.util.Arrays;
 
@@ -40,7 +40,7 @@ public class GpsMongoPersistor  {
 		
 		final JsonArray indexes = new JsonArray(Arrays.asList(
 						new JsonObject().put("key", new JsonObject().put("readingTime", -1)).put("name", "gps_readingTime_idx"),
-						new JsonObject().put("key", new JsonObject().put("angelId", 1).put("readingTime", -1)).put("name", "gps_angelId_readingTime_idx")
+						new JsonObject().put("key", new JsonObject().put("vehicleId", 1).put("readingTime", -1)).put("name", "gps_vehicleId_readingTime_idx")
 				));
 		final JsonObject createIndexesCommand = new JsonObject().put("createIndexes", collectionName).put("indexes", indexes);
 		mongoClient.runCommand("createIndexes", createIndexesCommand, this::handleCommand);
@@ -59,16 +59,16 @@ public class GpsMongoPersistor  {
 
 	public void persistGps(final JsonObject gps) {
 		logger.debug("Got GPS message {}",gps);
-		final Integer angelId = gps.getInteger("angelId");
-		mongoClient.insert(collectionName, gps, ar->handleAddGps(gps.toString(),angelId,ar));
+		final Integer vehicleId = gps.getInteger("vehicleId");
+		mongoClient.insert(collectionName, gps, ar->handleAddGps(gps.toString(),vehicleId,ar));
 	}
 
-	private void handleAddGps(final String gps, final Integer angelId, final AsyncResult<String> ar) {
+	private void handleAddGps(final String gps, final Integer vehicleId, final AsyncResult<String> ar) {
 		if (ar.succeeded()){
 			logger.debug("Added GPS to Mongo. GPS is {}",gps);
 			vertx.eventBus().send(MessageProducer.EVENTBUS_DEFAULT_ADDRESS, gps);
 			vertx.eventBus().publish("gps-feed-all", gps);
-			vertx.eventBus().publish("gps-feed-"+angelId, gps);
+			vertx.eventBus().publish("gps-feed-"+vehicleId, gps);
 		}
 		else
 			logger.error("Problem on adding GPS {}: ",gps,ar.cause());

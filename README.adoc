@@ -1,4 +1,4 @@
-# AngelSense GPS Service
+# FleetTracker GPS Service
 
 This microservice consumes raw-gps from the raw-gps Kafka topic (fed by the device-manager), and convert them to enriched GPS 
 objects,.

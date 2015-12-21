@@ -1,9 +1,9 @@
 ###
 # vert.x docker device-manager using a Java verticle packaged as a fatjar
 # To build:
-#  docker build -t angelsense/as-gps-service .
+#  docker build -t fleettracker/as-gps-service .
 # To run:
-#   docker run -t -i -p 8080:8080 angelsense/as-gps-service
+#   docker run -t -i -p 8080:8080 fleettracker/as-gps-service
 ###
 
 FROM java:8
