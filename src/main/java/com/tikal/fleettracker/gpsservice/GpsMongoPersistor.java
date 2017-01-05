@@ -2,7 +2,8 @@ package com.tikal.fleettracker.gpsservice;
 
 import java.util.Arrays;
 
-import com.cyngn.kafka.MessageProducer;
+import com.cyngn.kafka.produce.MessageProducer;
+import com.cyngn.kafka.produce.KafkaPublisher;
 
 import io.vertx.core.AsyncResult;
 import io.vertx.core.DeploymentOptions;
@@ -10,6 +11,7 @@ import io.vertx.core.Vertx;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.mongo.MongoClient;
+import org.apache.kafka.clients.producer.KafkaProducer;
 
 public class GpsMongoPersistor  {
 
@@ -29,7 +31,7 @@ public class GpsMongoPersistor  {
 		if(appConfig.getJsonObject("mongoConfig").getBoolean("recreate"))
 			recreateDB();
 		
-		vertx.deployVerticle(MessageProducer.class.getName(),new DeploymentOptions().setConfig(appConfig));
+		vertx.deployVerticle(KafkaPublisher.class.getName(),new DeploymentOptions().setConfig(appConfig));
 		logger.info("Started listening to EventBus for GPS");
 	}
 

@@ -3,23 +3,22 @@
 	"mongoConfig" : {
 		"recreate" : true,
 		"gps_col_name" : "gpsreadings",
-		"connection_string" : "mongodb://localhost:27017",
+		"connection_string" : "mongodb://mongo:27017",
 		"db_name" : "gps_db"
 	}, 
 	
 	"management.http.server.port" : 3080,
-	"management.http.server.address" : "localhost",
+	"management.http.server.address" : "as-management",
 	
-	"consumer" : {
-	    "zookeeper.host" : "localhost",
-	    "group.id" : "gpsServiceGroup",
-	    "topics" : ["as-raw-gps"]
-	 },
-	 
+    "zookeeper.host" : "zookeeper:2181",
+    "bootstrap.servers" : "kafka:9092",
+    "group.id" : "gpsServiceGroup",
+    "topics" : ["as-raw-gps"],
+
 	 "producer":{
 		"topic":"as-gps",
-		"metadata.broker.list":"localhost:9092",
-		"serializer.class":"kafka.serializer.StringEncoder",
+		"bootstrap.servers" : "kafka:9092" ,
+		"serializer.class":"org.apache.kafka.common.serialization.StringSerializer",
 		"producer.type" : "sync"
 	}
 }

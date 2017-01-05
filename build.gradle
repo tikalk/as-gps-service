@@ -27,8 +27,8 @@ if (!JavaVersion.current().java8Compatible) {
 }
 docker{
     url = "$dockerHost"
-    if ( "$certUrl" != "" )
-        certPath = new File("$certUrl")
+//    if ( "$certUrl" != "" )
+//        certPath = new File("$certUrl")
         //certPath = new File('/Users/itai/.docker/machine/machines/gradleBuild')
    // certPath = new File(certUrl)
 
@@ -44,7 +44,7 @@ dependencies {
     compile "io.vertx:vertx-core:$version"
     compile "io.vertx:vertx-web:$version"
     compile "io.vertx:vertx-hazelcast:$version"
-    compile 'com.cyngn.vertx:vertx-kafka:0.3.0'
+    compile 'com.cyngn.vertx:vertx-kafka:0.4.1'
     compile "io.vertx:vertx-mongo-client:$version"
     compile "org.slf4j:slf4j-log4j12:1.7.12"
 	compile "org.slf4j:slf4j-api:1.7.12"
@@ -55,7 +55,7 @@ shadowJar {
     classifier = 'fat'
     manifest {
         attributes 'Main-Class': 'io.vertx.core.Launcher'
-        attributes 'Main-Verticle': 'com.tikal.angelsense.gpsservice.GpsServiceVerticle'
+        attributes 'Main-Verticle': 'com.tikal.fleettracker.gpsservice.GpsServiceVerticle'
     }
     mergeServiceFiles {
         include 'META-INF/services/io.vertx.core.spi.VerticleFactory'
@@ -63,12 +63,17 @@ shadowJar {
 }
 
 task zipAll(type: Tar) {
-    extension = 'tar.gz'
-    from '.'
+    dependsOn shadowJar
+    extension = 'tar'
 	baseName = 'as-gps-service'
-    include 'conf/**'
-    include '*.sh'
-    include 'build/libs/*.jar'
+    from ('.'){
+        include 'conf/**'
+        include 'build/libs/*.jar'
+     }
+     from ('.'){
+        include '*.sh'
+        fileMode 0755
+     }
 }
 
 task buildImage(type: DockerBuildImage) {
@@ -112,7 +117,7 @@ task createContainerKafka(type: DockerCreateContainer) {
     dependsOn startContainerMongo
     containerName = "kafka"
     //cmd = ""
-    env = ["ADVERTISED_HOST=192.168.99.100", "ADVERTISED_PORT=9092"]
+    env = ["ADVERTISED_HOST=kafka", "ADVERTISED_PORT=9092"]
     exposedPorts= ['tcp' : 9092 ]
     portBindings="2181:2181"
 

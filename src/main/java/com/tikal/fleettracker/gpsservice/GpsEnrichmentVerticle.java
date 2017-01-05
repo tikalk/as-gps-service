@@ -3,7 +3,7 @@ package com.tikal.fleettracker.gpsservice;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
-import com.cyngn.kafka.MessageConsumer;
+import com.cyngn.kafka.consume.SimpleConsumer;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
@@ -29,15 +29,16 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 	public void start() {
 //		extractVehicleIdAndSave("013949008057328",null);
 		df.setTimeZone(TimeZone.getTimeZone("UTC"));
-		vertx.deployVerticle(MessageConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
+		vertx.deployVerticle(SimpleConsumer.class.getName(),new DeploymentOptions().setConfig(config()),this::handleKafkaDeploy);
 		gpsPersistor = new GpsMongoPersistor(vertx,config());
 		logger.info("Deployed GpsEnrichmentVerticle successfully");
 	}
 
-	private void enrichGps(final Message<String> message) {
-		final String gpsPayload = message.body();
-		logger.debug("I have received a message: {}", gpsPayload);
-		final JsonObject gps = toJson(gpsPayload);
+	private void enrichGps(final Message<JsonObject> message) {
+		final JsonObject gpsPayload = message.body();
+//		logger.debug("I have received a message: {}", message);
+		logger.debug("I have received a body: {}", gpsPayload);
+		final JsonObject gps = toJson(gpsPayload.getString("value"));
 		extractVehicleIdAndSave(gps.getString("imei"),gps);
 		
 	}
@@ -87,7 +88,7 @@ public class GpsEnrichmentVerticle extends AbstractVerticle {
 	private void handleKafkaDeploy(final AsyncResult<String> ar) {
 		if (ar.succeeded()){
 			logger.info("Connected to succfully to Kafka");
-			vertx.eventBus().consumer(MessageConsumer.EVENTBUS_DEFAULT_ADDRESS, this::enrichGps);
+			vertx.eventBus().consumer(SimpleConsumer.EVENTBUS_DEFAULT_ADDRESS, this::enrichGps);
 		}
 		else
 			logger.error("Problem connect to Kafka: ",ar.cause());

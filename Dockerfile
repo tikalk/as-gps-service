@@ -11,7 +11,7 @@ FROM java:8
 EXPOSE 8080
 
 # Copy your fat jar to the container
-ADD build/distributions/as-gps-service-3.1.0.tar.gz /as-gps-service
+ADD build/distributions/as-gps-service-3.1.0.tar /as-gps-service
 
 # Launch the verticle
 ENV WORKDIR /as-gps-service
