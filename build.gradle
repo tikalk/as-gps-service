@@ -117,7 +117,7 @@ task createContainerKafka(type: DockerCreateContainer) {
     dependsOn startContainerMongo
     containerName = "kafka"
     //cmd = ""
-    env = ["ADVERTISED_HOST=kafka", "ADVERTISED_PORT=9092"]
+    env = ["ADVERTISED_HOST=as-kafka", "ADVERTISED_PORT=9092"]
     exposedPorts= ['tcp' : 9092 ]
     portBindings="2181:2181"
 

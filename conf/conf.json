@@ -10,14 +10,14 @@
 	"management.http.server.port" : 3080,
 	"management.http.server.address" : "as-management",
 	
-    "zookeeper.host" : "zookeeper:2181",
-    "bootstrap.servers" : "kafka:9092",
+    "zookeeper.host" : "as-zookeeper:2181",
+    "bootstrap.servers" : "as-kafka:9092",
     "group.id" : "gpsServiceGroup",
     "topics" : ["as-raw-gps"],
 
 	 "producer":{
 		"topic":"as-gps",
-		"bootstrap.servers" : "kafka:9092" ,
+		"bootstrap.servers" : "as-kafka:9092" ,
 		"serializer.class":"org.apache.kafka.common.serialization.StringSerializer",
 		"producer.type" : "sync"
 	}
