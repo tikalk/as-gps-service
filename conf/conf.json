@@ -8,16 +8,16 @@
 	}, 
 	
 	"management.http.server.port" : 3080,
-	"management.http.server.address" : "as-management",
+	"management.http.server.address" : "ft-management",
 	
-    "zookeeper.host" : "as-zookeeper:2181",
-    "bootstrap.servers" : "as-kafka:9092",
+    "zookeeper.host" : "ft-zookeeper:2181",
+    "bootstrap.servers" : "ft-kafka:9092",
     "group.id" : "gpsServiceGroup",
-    "topics" : ["as-raw-gps"],
+    "topics" : ["ft-raw-gps"],
 
 	 "producer":{
-		"topic":"as-gps",
-		"bootstrap.servers" : "as-kafka:9092" ,
+		"topic":"ft-gps",
+		"bootstrap.servers" : "ft-kafka:9092" ,
 		"serializer.class":"org.apache.kafka.common.serialization.StringSerializer",
 		"producer.type" : "sync"
 	}

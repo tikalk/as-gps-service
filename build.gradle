@@ -65,7 +65,7 @@ shadowJar {
 task zipAll(type: Tar) {
     dependsOn shadowJar
     extension = 'tar'
-	baseName = 'as-gps-service'
+	baseName = 'ft-gps-service'
     from ('.'){
         include 'conf/**'
         include 'build/libs/*.jar'
@@ -81,11 +81,11 @@ task buildImage(type: DockerBuildImage) {
     quiet = false
     inputDir = projectDir
 
-    tag = "$registerBaseName/$dockerBranch/$project.name:$dockerTag"
+    tag = "$registerBaseName$dockerBranch/$project.name:$dockerTag"
 }
 task pushImage(type: DockerPushImage) {
     dependsOn buildImage
-    imageName = "$registerBaseName/$dockerBranch/$project.name"
+    imageName = "$registerBaseName$dockerBranch/$project.name"
     tag="$dockerTag"
 }
 
@@ -117,7 +117,7 @@ task createContainerKafka(type: DockerCreateContainer) {
     dependsOn startContainerMongo
     containerName = "kafka"
     //cmd = ""
-    env = ["ADVERTISED_HOST=as-kafka", "ADVERTISED_PORT=9092"]
+    env = ["ADVERTISED_HOST=ft-kafka", "ADVERTISED_PORT=9092"]
     exposedPorts= ['tcp' : 9092 ]
     portBindings="2181:2181"
 
