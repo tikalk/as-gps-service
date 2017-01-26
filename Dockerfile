@@ -8,7 +8,7 @@
 
 FROM java:8
 
-EXPOSE 8080
+EXPOSE 8088
 
 # Copy your fat jar to the container
 ADD build/distributions/ft-gps-service-3.1.0.tar /ft-gps-service
